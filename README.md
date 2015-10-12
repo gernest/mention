@@ -1,4 +1,4 @@
-# mention
+# mention [![Build Status](https://travis-ci.org/gernest/mention.svg)](https://travis-ci.org/gernest/mention) [![Coverage Status](https://coveralls.io/repos/gernest/mention/badge.svg?branch=master&service=github)](https://coveralls.io/github/gernest/mention?branch=master) [![GoDoc](https://godoc.org/github.com/gernest/mention?status.svg)](https://godoc.org/github.com/gernest/mention)
 
 mention parses twitter like mentions and hashtags like @gernest and #Tanzania from text input.
 
