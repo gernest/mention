@@ -1,9 +1,9 @@
 # mention [![Build Status](https://travis-ci.org/gernest/mention.svg)](https://travis-ci.org/gernest/mention) [![Coverage Status](https://coveralls.io/repos/gernest/mention/badge.svg?branch=master&service=github)](https://coveralls.io/github/gernest/mention?branch=master) [![GoDoc](https://godoc.org/github.com/gernest/mention?status.svg)](https://godoc.org/github.com/gernest/mention)
 
-mention parses twitter like mentions and hashtags like @gernest and #Tanzania from text input.
+`mention` parses twitter like mentions and hashtags like @gernest and #Tanzania from text input.
 
 # Motivation
-I have an idea that I'm implementing, its my attempt to try solving information flow in my country( Tanzania). I nneded to figure out how to compute directions, and heck the simplest approach is to use mentions and hashtags.
+I have an idea that I'm implementing, its my attempt to try solving information flow in my country (Tanzania). I needed to figure out how to compute directions, and heck the simplest approach is to use mentions and hashtags.
 
 You can benefit from `mention` by reading the source code. I have made it simple, and a bit clear for anyone who wants to use `bufio.Scanner` in their project.
 
@@ -15,7 +15,7 @@ You can benefit from `mention` by reading the source code. I have made it simple
 
 # Usage
 
-`mention` is flexible, menaning it is not only limited to `@` and `#` tags. You can choose whatever tag you like and mention will take it from there.
+`mention` is flexible, meaning it is not only limited to `@` and `#` tags. You can choose whatever tag you like and mention will take it from there.
 
 ## twitter like mentions
 
@@ -25,7 +25,7 @@ For instance you have the following message
 hello @gernesti I would like to follow you on twitter
 ```
 
-And you want to know aho was mentioed in the text.
+And you want to know who was mentioned in the text.
 
 ```go
 package main
@@ -46,7 +46,7 @@ func main() {
 }
 ```
 
-If you run the above example it will print `[gernesti]` is the stdout.
+If you run the above example it will print `[gernest]` is the stdout.
 
 ## twitter like hashtags
 
@@ -82,7 +82,7 @@ If you run the above example it will print `[loner]` in the stdout.
 # The API
 mention exposes only one function `GetTags(char rune, src io.Reader) []string`
 
-The first argument `char` is the prefix for your tag, this can be `@` or `#` or whatever unicode character you prefer.Don't be worried by its type `rune` it is just your normal characters but in single quotes. see the examples for more information.
+The first argument `char` is the prefix for your tag, this can be `@` or `#` or whatever unicode character you prefer. Don't be worried by its type `rune` it is just your normal characters but in single quotes. See the examples for more information.
 
 The second argument is the source of the input which can be from texts.
 
