@@ -11,9 +11,10 @@ import (
 )
 
 // GetTags returns a slice of tags, that is all characters after rune char up to occurance of space
-// or another occurance of rune char..
-func GetTags(char rune, src io.Reader) []string {
-	t := getTag(char, src)
+// or another occurance of rune char. Additionally you can provide a coma separated unicode characters to
+// be used as terminating sequence.
+func GetTags(char rune, src io.Reader, terminator ...rune) []string {
+	t := getTag(char, src, terminator...)
 	var out []string
 	for v := range t {
 		out = append(out, v)
@@ -23,11 +24,11 @@ func GetTags(char rune, src io.Reader) []string {
 
 // getTag sends matched tags to the output channel, the output channel is closed when scanning is complete.
 // it is safe to use range on the output channel.
-func getTag(char rune, src io.Reader) <-chan string {
+func getTag(char rune, src io.Reader, terminator ...rune) <-chan string {
 	out := make(chan string, 2)
 	go func() {
 		scan := bufio.NewScanner(src)
-		scan.Split(splitTag(char))
+		scan.Split(splitTag(char, terminator...))
 		for scan.Scan() {
 			out <- scan.Text()
 		}
@@ -44,7 +45,7 @@ func getTag(char rune, src io.Reader) <-chan string {
 //
 // Example:
 // 	@gernest will be split when char is @ resulting in gernest
-func splitTag(char rune) bufio.SplitFunc {
+func splitTag(char rune, terminator ...rune) bufio.SplitFunc {
 	return func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {
 			return 0, nil, nil
@@ -65,6 +66,11 @@ func splitTag(char rune) bufio.SplitFunc {
 					// this can be a case like @gernest@gernest
 					if xFirst == char {
 						return n - width, data[begin:n], nil
+					}
+					for _, term := range terminator {
+						if xFirst == term {
+							return n + width, data[begin:n], nil
+						}
 					}
 
 					// the end of our tag
