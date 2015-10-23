@@ -18,9 +18,12 @@ func TestGetTag(t *testing.T) {
 		{" @gernest @mwanza", []string{"gernest", "mwanza"}},
 		{" @gernest @mwanza ", []string{"gernest", "mwanza"}},
 		{" @gernest @mwanza @tanzania", []string{"gernest", "mwanza", "tanzania"}},
+		{" @gernest,@mwanza/Tanzania ", []string{"gernest", "mwanza"}},
 	}
+
+	terminators := []rune{',', '/'}
 	for _, v := range sample {
-		tag := GetTags('@', strings.NewReader(v.src))
+		tag := GetTags('@', strings.NewReader(v.src), terminators...)
 
 		if !reflect.DeepEqual(v.tag, tag) {
 			t.Errorf("expected  %v got %v for %s", v.tag, tag, v.src)
