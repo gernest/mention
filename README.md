@@ -3,10 +3,7 @@
 `mention` parses twitter like mentions and hashtags like @gernest and #Tanzania from text input.
 
 # Motivation
-I have an idea that I'm implementing, its my attempt to try solving information flow in my country (Tanzania). I needed to figure out how to compute directions, and heck the simplest approach is to use mentions and hashtags.
-
-You can benefit from `mention` by reading the source code. I have made it simple, and a bit clear for anyone who wants to use `bufio.Scanner` in their project.
-
+I wanted to experiment on `bufio.Scanner`
 
 # Installation
 
@@ -93,11 +90,10 @@ Start with clicking the star button to make the author and his neighbors happy. 
 If you have any questions, just open an issue.
 
 # Author
-Geofrey Ernest <geofreyernest@live.com>
+Geofrey Ernest
 
 Twitter  : [@gernesti](https://twitter.com/gernesti)
 
-Facebook : [Geofrey Ernest](https://www.facebook.com/geofrey.ernest.35)
 
 
 # Licence
