@@ -22,15 +22,18 @@ func GetTags(char rune, src io.Reader, terminator ...rune) []string {
 	return out
 }
 
-// getTag sends matched tags to the output channel, the output channel is closed when scanning is complete.
-// it is safe to use range on the output channel.
+// getTag sends matched tags to the output channel, the output channel is closed
+// when scanning is complete. it is safe to use range on the output channel.
 func getTag(char rune, src io.Reader, terminator ...rune) <-chan string {
 	out := make(chan string, 2)
 	go func() {
 		scan := bufio.NewScanner(src)
 		scan.Split(splitTag(char, terminator...))
 		for scan.Scan() {
-			out <- scan.Text()
+			txt := scan.Text()
+			if txt != "" {
+				out <- txt
+			}
 		}
 		if err := scan.Err(); err != nil {
 			fmt.Println(err)
@@ -40,8 +43,8 @@ func getTag(char rune, src io.Reader, terminator ...rune) <-chan string {
 	return out
 }
 
-// splitTag splits the input at any occurence of rune char up to eather space of another occurence
-// of rune char.
+// splitTag splits the input at any occurence of rune char up to eather space of
+// another occurence of rune char.
 //
 // Example:
 // 	@gernest will be split when char is @ resulting in gernest
@@ -51,14 +54,13 @@ func splitTag(char rune, terminator ...rune) bufio.SplitFunc {
 			return 0, nil, nil
 		}
 		start := getRuneBytes(char)
-
 		if x := bytes.Index(data, start); x >= 0 {
 			begin := x + len(start)
 			for n := begin; n < len(data); n++ {
 				xFirst, width := utf8.DecodeRune(data[n:])
 				if n == x+len(start) {
 					if unicode.IsSpace(xFirst) {
-						break
+						return n + width, data[begin:n], nil
 					}
 				} else {
 
@@ -67,6 +69,7 @@ func splitTag(char rune, terminator ...rune) bufio.SplitFunc {
 					if xFirst == char {
 						return n - width, data[begin:n], nil
 					}
+
 					for _, term := range terminator {
 						if xFirst == term {
 							return n + width, data[begin:n], nil
