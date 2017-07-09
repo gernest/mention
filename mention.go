@@ -67,17 +67,32 @@ func splitTag(char rune, terminator ...rune) bufio.SplitFunc {
 					// we stop when we encounter another char instance
 					// this can be a case like @gernest@gernest
 					if xFirst == char {
+						// if we only have one character (which is '@'), return nothing
+						if n-begin == 1 {
+							return 0, nil, nil
+						}
 						return n - width, data[begin:n], nil
 					}
 
 					for _, term := range terminator {
 						if xFirst == term {
+							// If when reaching our terminator, its the only
+							// character in the data, ignore the mention. (ie "@,")
+							if n-begin == 1 {
+								return 0, nil, nil
+							}
 							return n + width, data[begin:n], nil
 						}
 					}
 
 					// the end of our tag
 					if unicode.IsSpace(xFirst) {
+						// make sure our result isn't just a single terminator (ie "@@")
+						for _, term := range terminator {
+							if n-begin == 1 && rune(data[begin:n][0]) == term {
+								return 0, nil, nil
+							}
+						}
 						return n + width, data[begin:n], nil
 					}
 				}
