@@ -72,12 +72,23 @@ func splitTag(char rune, terminator ...rune) bufio.SplitFunc {
 
 					for _, term := range terminator {
 						if xFirst == term {
+							// If when reaching our terminator, its the only
+							// character in the data, ignore the mention. (ie "@,")
+							if n-begin == 1 {
+								return n + width, data[begin : n-1], nil
+							}
 							return n + width, data[begin:n], nil
 						}
 					}
 
 					// the end of our tag
 					if unicode.IsSpace(xFirst) {
+						// make sure our result isn't just a single terminator (ie "@@")
+						for _, term := range terminator {
+							if n-begin == 1 && rune(data[begin:n][0]) == term {
+								return n + width, data[begin : n-1], nil
+							}
+						}
 						return n + width, data[begin:n], nil
 					}
 				}

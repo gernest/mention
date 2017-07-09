@@ -20,9 +20,10 @@ func TestGetTag(t *testing.T) {
 		{" @gernest @mwanza @tanzania", []string{"gernest", "mwanza", "tanzania"}},
 		{" @gernest,@mwanza/Tanzania ", []string{"gernest", "mwanza"}},
 		{"how does it feel to be rejected? @ it is @loner tt ggg sjdsj dj @linker ", []string{"loner", "linker"}},
+		{"This @gernest is @@ @ @,, @, @mwanza", []string{"gernest", "mwanza"}},
 	}
 
-	terminators := []rune{',', '/'}
+	terminators := []rune{',', '/', '@'}
 	for _, v := range sample {
 		tag := GetTags('@', strings.NewReader(v.src), terminators...)
 		if !reflect.DeepEqual(v.tag, tag) {
