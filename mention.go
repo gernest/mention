@@ -63,10 +63,13 @@ func splitTag(char rune, terminator ...rune) bufio.SplitFunc {
 						return n + width, data[begin:n], nil
 					}
 				} else {
-
 					// we stop when we encounter another char instance
 					// this can be a case like @gernest@gernest
 					if xFirst == char {
+						// in the case we have mulitple @ (ie `@@@@`), we return no mention
+						if n-begin == 1 {
+							return n + width, data[begin : n-1], nil
+						}
 						return n - width, data[begin:n], nil
 					}
 
