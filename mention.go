@@ -56,6 +56,12 @@ func splitTag(char rune, terminator ...rune) bufio.SplitFunc {
 		start := getRuneBytes(char)
 		if x := bytes.Index(data, start); x >= 0 {
 			begin := x + len(start)
+			if x > 0 {
+				// TODO: data[x-1] won't work with multibyte characters.
+				if unicode.IsLetter(rune(data[x-1])) {
+					return begin, nil, nil
+				}
+			}
 			for n := begin; n < len(data); n++ {
 				xFirst, width := utf8.DecodeRune(data[n:])
 				if n == x+len(start) {

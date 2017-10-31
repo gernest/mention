@@ -13,7 +13,7 @@ func TestGetTag(t *testing.T) {
 	}{
 		// {"@gernest", []string{"gernest"}},
 		// {"@gernest ", []string{"gernest"}},
-		{"@gernest@mwanza hello", []string{"gernest", "mwanza"}},
+		{"@gernest@mwanza hello", []string{"gernest"}},
 		{"@gernest @mwanza", []string{"gernest", "mwanza"}},
 		{" @gernest @mwanza", []string{"gernest", "mwanza"}},
 		{" @gernest @mwanza ", []string{"gernest", "mwanza"}},
@@ -21,6 +21,8 @@ func TestGetTag(t *testing.T) {
 		{" @gernest,@mwanza/Tanzania ", []string{"gernest", "mwanza"}},
 		{"how does it feel to be rejected? @ it is @loner tt ggg sjdsj dj @linker ", []string{"loner", "linker"}},
 		{"This @gernest is @@@@ @@@ @@ @ @,, @, @mwanza,", []string{"gernest", "mwanza"}},
+		{"Please email support@example.com to contact @martin", []string{"martin"}},
+		//TODO: fails {"Please email العَرَبِيَّة@example.com to contact @martin", []string{"martin"}},
 	}
 
 	terminators := []rune{',', '/', '@'}
