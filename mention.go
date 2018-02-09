@@ -2,113 +2,72 @@
 package mention
 
 import (
-	"bufio"
-	"bytes"
-	"fmt"
-	"io"
+	"strings"
 	"unicode"
-	"unicode/utf8"
 )
 
 // GetTags returns a slice of tags, that is all characters after rune char up to occurance of space
 // or another occurance of rune char. Additionally you can provide a coma separated unicode characters to
 // be used as terminating sequence.
-func GetTags(char rune, src io.Reader, terminator ...rune) []string {
-	t := getTag(char, src, terminator...)
-	var out []string
-	for v := range t {
-		out = append(out, v)
+func GetTags(char rune, str string, terminator ...rune) (tags []string) {
+	parts := split(str, terminator) // split on terminators
+
+	for i, _ := range parts {
+		// get index number of our char in this part. If none exists will be -1 value
+		x := strings.IndexRune(parts[i], char)
+		if x == -1 {
+			// our char is not found inside the string, therefore no tag here
+			// set to empty string so it can be removed later from the slice
+			parts[i] = ""
+		} else if x == 0 {
+			// our char is the first character, so no need to slice anything
+			// before it. Aka do nothing
+		} else {
+			// make sure our char is not in the middle of a word by checking
+			// the previous character is a space of some kind.
+			if unicode.IsSpace([]rune(parts[i])[x-1]) {
+				parts[i] = parts[i][strings.IndexRune(parts[i], char):]
+			} else {
+				// our char is in the middle of the word. Ignore this instance,
+				// set to empty string for later removal.
+				parts[i] = ""
+			}
+		}
+		// trim our char from the beginning of the string. (include
+		// repeat/multiple chars)
+		parts[i] = strings.TrimLeft(parts[i], string(char))
 	}
-	return out
+
+	// unique-ify our slice and drop empty strings
+	return uniquify(parts)
 }
 
-// getTag sends matched tags to the output channel, the output channel is closed
-// when scanning is complete. it is safe to use range on the output channel.
-func getTag(char rune, src io.Reader, terminator ...rune) <-chan string {
-	out := make(chan string, 2)
-	go func() {
-		scan := bufio.NewScanner(src)
-		scan.Split(splitTag(char, terminator...))
-		for scan.Scan() {
-			txt := scan.Text()
-			if txt != "" {
-				out <- txt
+// Splits a string based on a slice of runes
+func split(s string, separators []rune) []string {
+	f := func(r rune) bool {
+		for _, s := range separators {
+			if r == s {
+				return true
 			}
 		}
-		if err := scan.Err(); err != nil {
-			fmt.Println(err)
-		}
-		close(out)
-	}()
-	return out
-}
-
-// splitTag splits the input at any occurence of rune char up to eather space of
-// another occurence of rune char.
-//
-// Example:
-// 	@gernest will be split when char is @ resulting in gernest
-func splitTag(char rune, terminator ...rune) bufio.SplitFunc {
-	return func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		if atEOF && len(data) == 0 {
-			return 0, nil, nil
-		}
-		start := getRuneBytes(char)
-		if x := bytes.Index(data, start); x >= 0 {
-			begin := x + len(start)
-			for n := begin; n < len(data); n++ {
-				xFirst, width := utf8.DecodeRune(data[n:])
-				if n == x+len(start) {
-					if unicode.IsSpace(xFirst) {
-						return n + width, data[begin:n], nil
-					}
-				} else {
-					// we stop when we encounter another char instance
-					// this can be a case like @gernest@gernest
-					if xFirst == char {
-						// in the case we have mulitple @ (ie `@@@@`), we return no mention
-						if n-begin == 1 {
-							return n + width, data[begin : n-1], nil
-						}
-						return n - width, data[begin:n], nil
-					}
-
-					for _, term := range terminator {
-						if xFirst == term {
-							// If when reaching our terminator, its the only
-							// character in the data, ignore the mention. (ie "@,")
-							if n-begin == 1 {
-								return n + width, data[begin : n-1], nil
-							}
-							return n + width, data[begin:n], nil
-						}
-					}
-
-					// the end of our tag
-					if unicode.IsSpace(xFirst) {
-						// make sure our result isn't just a single terminator (ie "@@")
-						for _, term := range terminator {
-							if n-begin == 1 && rune(data[begin:n][0]) == term {
-								return n + width, data[begin : n-1], nil
-							}
-						}
-						return n + width, data[begin:n], nil
-					}
-				}
-
-			}
-			if atEOF && len(data) > begin {
-				return len(data), data[begin:], nil
-			}
-			return x, nil, nil
-		}
-		return len(data), nil, nil
+		return false
 	}
+	return strings.FieldsFunc(s, f)
 }
 
-// getRuneBytes encodes rune r into bytes and return the byte slice.
-func getRuneBytes(r rune) []byte {
-	rst := make([]byte, utf8.RuneLen(r))
-	utf8.EncodeRune(rst, r)
-	return rst
+// Ensures the given slice of strings are unique and that none are empty
+// strings
+func uniquify(in []string) (out []string) {
+	for _, i := range in {
+		if i == "" {
+			continue
+		}
+		for _, o := range out {
+			if i == o {
+				continue
+			}
+		}
+		out = append(out, i)
+	}
+	return
 }

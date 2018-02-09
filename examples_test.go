@@ -2,12 +2,11 @@ package mention
 
 import (
 	"fmt"
-	"strings"
 )
 
 func ExampleGetTags_mention() {
 	msg := " hello @gernest"
-	tags := GetTags('@', strings.NewReader(msg))
+	tags := GetTags('@', msg)
 	fmt.Println(tags)
 
 	//Output:
@@ -16,7 +15,7 @@ func ExampleGetTags_mention() {
 
 func ExampleGetTags_hashtag() {
 	msg := " viva la #tanzania"
-	tags := GetTags('#', strings.NewReader(msg))
+	tags := GetTags('#', msg)
 	fmt.Println(tags)
 
 	//Output:
