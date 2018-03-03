@@ -37,9 +37,15 @@ func (s *MentionSuite) TestGetTags(c *C) {
 			},
 		},
 		{
-			"Please email support@example.com to contact @martin",
+			"please email support@example.com to contact @martin",
 			[]Tag{
 				{'@', "martin", 44},
+			},
+		},
+		{
+			"please email العَرَبِيَّة@example.com to contact @martin",
+			[]Tag{
+				{'@', "martin", 61},
 			},
 		},
 		{
