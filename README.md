@@ -2,12 +2,9 @@
 
 `mention` parses twitter like mentions and hashtags like @gernest and #Tanzania from text input.
 
-# Motivation
-I wanted to experiment on `bufio.Scanner`
-
 # Installation
 
-	go get github.com/gernest/mention
+	go get github.com/gernest/mention.v2
 	
 
 # Usage
@@ -37,9 +34,11 @@ import (
 func main() {
 	message := "hello @gernest I would like to follow you on twitter"
 
-	tags := mention.GetTags('@', strings.NewReader(message))
+	tags := mention.GetTags('@', message)
+	tagStrings := mention.GetTagsAsUniqueStrings('@', message)
 
 	fmt.Println(tags)
+	fmt.Println(tagStrings)
 }
 ```
 
@@ -68,7 +67,7 @@ import (
 func main() {
 	message := "how does it feel to be rejected? #loner"
 
-	tags := mention.GetTags('#', strings.NewReader(message))
+	tags := mention.GetTags('#', message)
 
 	fmt.Println(tags)
 }
@@ -77,7 +76,7 @@ func main() {
 If you run the above example it will print `[loner]` in the stdout.
 
 # The API
-mention exposes only one function `GetTags(char rune, src io.Reader) []string`
+mention exposes only one function `GetTags(char rune, src string) []string`
 
 The first argument `char` is the prefix for your tag, this can be `@` or `#` or whatever unicode character you prefer. Don't be worried by its type `rune` it is just your normal characters but in single quotes. See the examples for more information.
 
@@ -91,9 +90,10 @@ If you have any questions, just open an issue.
 
 # Author
 Geofrey Ernest
-
 Twitter  : [@gernesti](https://twitter.com/gernesti)
 
+Chad Barraford
+Github  : [@cbarraford](https://github.com/cbarraford)
 
 
 # Licence

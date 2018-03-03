@@ -6,7 +6,7 @@ import (
 
 func ExampleGetTags_mention() {
 	msg := " hello @gernest"
-	tags := GetTags('@', msg)
+	tags := GetTagsAsUniqueStrings('@', msg)
 	fmt.Println(tags)
 
 	//Output:
@@ -15,7 +15,7 @@ func ExampleGetTags_mention() {
 
 func ExampleGetTags_hashtag() {
 	msg := " viva la #tanzania"
-	tags := GetTags('#', msg)
+	tags := GetTagsAsUniqueStrings('#', msg)
 	fmt.Println(tags)
 
 	//Output:

@@ -3,56 +3,72 @@ package mention
 
 import (
 	"strings"
-	"unicode"
 )
 
-// GetTags returns a slice of tags, that is all characters after rune char up to occurance of space
-// or another occurance of rune char. Additionally you can provide a coma separated unicode characters to
-// be used as terminating sequence.
-func GetTags(char rune, str string, terminator ...rune) (tags []string) {
-	parts := split(str, terminator) // split on terminators
-
-	for i, _ := range parts {
-		// get index number of our char in this part. If none exists will be -1 value
-		x := strings.IndexRune(parts[i], char)
-		if x == -1 {
-			// our char is not found inside the string, therefore no tag here
-			// set to empty string so it can be removed later from the slice
-			parts[i] = ""
-		} else if x == 0 {
-			// our char is the first character, so no need to slice anything
-			// before it. Aka do nothing
-		} else {
-			// make sure our char is not in the middle of a word by checking
-			// the previous character is a space of some kind.
-			if unicode.IsSpace([]rune(parts[i])[x-1]) {
-				parts[i] = parts[i][strings.IndexRune(parts[i], char):]
-			} else {
-				// our char is in the middle of the word. Ignore this instance,
-				// set to empty string for later removal.
-				parts[i] = ""
-			}
-		}
-		// trim our char from the beginning of the string. (include
-		// repeat/multiple chars)
-		parts[i] = strings.TrimLeft(parts[i], string(char))
-	}
-
-	// unique-ify our slice and drop empty strings
-	return uniquify(parts)
+type Tag struct {
+	Char  rune
+	Tag   string
+	Index int
 }
 
-// Splits a string based on a slice of runes
-func split(s string, separators []rune) []string {
-	f := func(r rune) bool {
-		for _, s := range separators {
-			if r == s {
-				return true
-			}
-		}
-		return false
+// GetTags returns a slice of Tags, that is all characters after rune char up
+// to occurance of space or another occurance of rune char. Additionally you
+// can provide a coma separated unicode characters to be used as terminating
+// sequence.
+func GetTags(prefix rune, str string, terminator ...rune) (tags []Tag) {
+	// If we have no terminators given, default to only whitespace
+	if len(terminator) == 0 {
+		terminator = []rune(" ")
 	}
-	return strings.FieldsFunc(s, f)
+	// get list of indexes in our str that is a terminator
+	// Always include the beginning of our str a terminator. This is so we can
+	// detect the first character as a prefix
+	term_indexes := []int{-1}
+	for i, char := range str {
+		if isTerminator(char, terminator...) {
+			term_indexes = append(term_indexes, i)
+		}
+	}
+	// Always include last character as a terminator
+	term_indexes = append(term_indexes, len(str))
+
+	// check if the character AFTER our term index is our prefix
+	for i, t := range term_indexes {
+		// ensure term index is not the last character in str
+		if t >= (len(str) - 1) {
+			break
+		}
+		if str[t+1] == byte(prefix) {
+			tag_text := strings.TrimLeft(str[t+2:term_indexes[i+1]], string(prefix))
+			if tag_text == "" {
+				continue
+			}
+			index := t + 1
+			tags = append(tags, Tag{prefix, tag_text, index})
+		}
+	}
+
+	return
+}
+
+// Get all tags as a slice of unique strings. This is here to have a means of
+// being somewhat backwards compatible with previous versions of mention
+func GetTagsAsUniqueStrings(prefix rune, str string, terminator ...rune) (strs []string) {
+	tags := GetTags(prefix, str, terminator...)
+	for _, tag := range tags {
+		strs = append(strs, tag.Tag)
+	}
+	return uniquify(strs)
+}
+
+// Is given rune listed as a terminator
+func isTerminator(r rune, terminator ...rune) bool {
+	for _, t := range terminator {
+		if r == t {
+			return true
+		}
+	}
+	return false
 }
 
 // Ensures the given slice of strings are unique and that none are empty
