@@ -10,7 +10,7 @@ import (
 // @genrest.
 type Tag struct {
 
-	//The character used to mark the beginning of the tag.
+	// The character used to mark the beginning of the tag.
 	Char rune
 
 	// Tag non space string that follows after the tag character mark.
@@ -21,7 +21,7 @@ type Tag struct {
 }
 
 // GetTags returns a slice of Tags, that is all characters after rune char up
-// to occupance of space or another occurance of rune char. Additionally you
+// to occurrence of space or another occurrence of rune char. Additionally you
 // can provide a coma separated unicode characters to be used as terminating
 // sequence.
 func GetTags(prefix rune, str string, terminator ...rune) (tags []Tag) {
@@ -61,8 +61,8 @@ func GetTags(prefix rune, str string, terminator ...rune) (tags []Tag) {
 }
 
 // GetTagsAsUniqueStrings gets all tags as a slice of unique strings. This is
-// here to have a means of
-// being somewhat backwards compatible with previous versions of mention
+// here to have a means of being somewhat backwards compatible with previous
+// versions of mention
 func GetTagsAsUniqueStrings(prefix rune, str string, terminator ...rune) (strs []string) {
 	tags := GetTags(prefix, str, terminator...)
 	for _, tag := range tags {
