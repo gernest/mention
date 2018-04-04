@@ -4,7 +4,7 @@
 
 # Installation
 
-	go get github.com/gernest/mention.v2
+	go get github.com/gernest/mention
 	
 
 # Usage
