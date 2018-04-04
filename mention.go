@@ -3,6 +3,7 @@ package mention
 
 import (
 	"strings"
+	"unicode"
 )
 
 // Tag is string that is prefixed with a marker. Often used to mark users like
@@ -77,7 +78,7 @@ func isTerminator(r rune, terminator ...rune) bool {
 			return true
 		}
 	}
-	return false
+	return unicode.IsSpace(r) || !unicode.IsPrint(r)
 }
 
 // Ensures the given slice of strings are unique and that none are empty

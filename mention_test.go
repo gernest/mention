@@ -110,8 +110,24 @@ func (s *MentionSuite) TestGetTags(c *C) {
 			"hello@world",
 			nil,
 		},
+		{
+			"@hello\u2000world", // en space
+			[]Tag{{'@', "hello", 0}},
+		},
+		{
+			"@hello\u200dworld", // zero width joiner (unprintable)
+			[]Tag{{'@', "hello", 0}},
+		},
+		{
+			"@hello\x1eworld", // control character
+			[]Tag{{'@', "hello", 0}},
+		},
+		{
+			"Hello @العَرَبِيَّة there",
+			[]Tag{{'@', "العَرَبِيَّة", 6}},
+		},
 	}
-	terms := []rune(",/. ")
+	terms := []rune(",/.")
 
 	for _, v := range sample {
 		c.Assert(GetTags('@', v.src, terms...), DeepEquals, v.tags, Commentf("Failed: %+v", v))
@@ -119,4 +135,12 @@ func (s *MentionSuite) TestGetTags(c *C) {
 
 	// use default terminators
 	c.Assert(GetTags('@', "hello @test"), DeepEquals, []Tag{{'@', "test", 6}})
+}
+
+func BenchmarkGetTags(b *testing.B) {
+	terms := []rune(",/. ")
+	src := "This @gernest is @hello\u2000world @hello\u200d"
+	for i := 0; i < b.N; i++ {
+		GetTags('@', src, terms...)
+	}
 }
