@@ -16,7 +16,7 @@ type Tag struct {
 	// Tag non space string that follows after the tag character mark.
 	Tag string
 
-	// Index is the position in the source string where the tag was found.
+	// Index is the byte position in the source string where the tag was found.
 	Index int
 }
 
