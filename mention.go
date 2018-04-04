@@ -5,14 +5,22 @@ import (
 	"strings"
 )
 
+// Tag is string that is prefixed with a marker. Often used to mark users like
+// @genrest.
 type Tag struct {
-	Char  rune
-	Tag   string
+
+	//The character used to mark the beginning of the tag.
+	Char rune
+
+	// Tag non space string that follows after the tag character mark.
+	Tag string
+
+	// Index is the position in the source string where the tag was found.
 	Index int
 }
 
 // GetTags returns a slice of Tags, that is all characters after rune char up
-// to occurance of space or another occurance of rune char. Additionally you
+// to occupance of space or another occurance of rune char. Additionally you
 // can provide a coma separated unicode characters to be used as terminating
 // sequence.
 func GetTags(prefix rune, str string, terminator ...rune) (tags []Tag) {
@@ -23,35 +31,36 @@ func GetTags(prefix rune, str string, terminator ...rune) (tags []Tag) {
 	// get list of indexes in our str that is a terminator
 	// Always include the beginning of our str a terminator. This is so we can
 	// detect the first character as a prefix
-	term_indexes := []int{-1}
+	termIndexes := []int{-1}
 	for i, char := range str {
 		if isTerminator(char, terminator...) {
-			term_indexes = append(term_indexes, i)
+			termIndexes = append(termIndexes, i)
 		}
 	}
 	// Always include last character as a terminator
-	term_indexes = append(term_indexes, len(str))
+	termIndexes = append(termIndexes, len(str))
 
 	// check if the character AFTER our term index is our prefix
-	for i, t := range term_indexes {
+	for i, t := range termIndexes {
 		// ensure term index is not the last character in str
 		if t >= (len(str) - 1) {
 			break
 		}
 		if str[t+1] == byte(prefix) {
-			tag_text := strings.TrimLeft(str[t+2:term_indexes[i+1]], string(prefix))
-			if tag_text == "" {
+			tagText := strings.TrimLeft(str[t+2:termIndexes[i+1]], string(prefix))
+			if tagText == "" {
 				continue
 			}
 			index := t + 1
-			tags = append(tags, Tag{prefix, tag_text, index})
+			tags = append(tags, Tag{prefix, tagText, index})
 		}
 	}
 
 	return
 }
 
-// Get all tags as a slice of unique strings. This is here to have a means of
+// GetTagsAsUniqueStrings gets all tags as a slice of unique strings. This is
+// here to have a means of
 // being somewhat backwards compatible with previous versions of mention
 func GetTagsAsUniqueStrings(prefix rune, str string, terminator ...rune) (strs []string) {
 	tags := GetTags(prefix, str, terminator...)
