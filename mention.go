@@ -84,13 +84,14 @@ func isTerminator(r rune, terminator ...rune) bool {
 // Ensures the given slice of strings are unique and that none are empty
 // strings
 func uniquify(in []string) (out []string) {
+next:
 	for _, i := range in {
 		if i == "" {
 			continue
 		}
 		for _, o := range out {
 			if i == o {
-				continue
+				break next
 			}
 		}
 		out = append(out, i)

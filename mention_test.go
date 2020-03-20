@@ -13,7 +13,6 @@ type MentionSuite struct{}
 var _ = Suite(&MentionSuite{})
 
 func (s *MentionSuite) TestGetTags(c *C) {
-
 	sample := []struct {
 		src  string
 		tags []Tag
@@ -139,6 +138,23 @@ func (s *MentionSuite) TestGetTags(c *C) {
 
 	// use default terminators
 	c.Assert(GetTags('@', "hello @test"), DeepEquals, []Tag{{'@', "test", 6}})
+}
+
+func (s *MentionSuite) TestGetTagsAsUniqueStrings(c *C) {
+	sample := []struct {
+		src  string
+		tags []string
+	}{
+		{
+			"@gernest @gernest @gernest",
+			[]string{"gernest"},
+		},
+	}
+	terms := []rune(",/.")
+
+	for _, v := range sample {
+		c.Assert(GetTagsAsUniqueStrings('@', v.src, terms...), DeepEquals, v.tags, Commentf("Failed: %+v", v))
+	}
 }
 
 func BenchmarkGetTags(b *testing.B) {
